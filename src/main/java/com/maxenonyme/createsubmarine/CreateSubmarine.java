@@ -1,5 +1,8 @@
 package com.maxenonyme.createsubmarine;
 import com.mojang.logging.LogUtils;
+import mekanism.common.capabilities.Capabilities;
+import mekanism.common.capabilities.chemical.DynamicChemicalHandler;
+import mekanism.common.capabilities.resolver.manager.ChemicalHandlerManager;
 import net.minecraft.core.Direction;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -280,6 +283,11 @@ public class CreateSubmarine {
                                 OXYGENE_DIFFUSER_BE.get(),
                                 (be, side) -> be.oxygenTank);
                 event.registerBlockEntity(
+                        Capabilities.CHEMICAL.block(),
+                        OXYGENE_DIFFUSER_BE.get(),
+                        (be, side) -> be.mekanismOxygenTank
+                );
+                event.registerBlockEntity(
                                 net.neoforged.neoforge.capabilities.Capabilities.FluidHandler.BLOCK,
                                 WATER_THRUSTER_BE.get(),
                                 (be, side) -> {
@@ -295,6 +303,7 @@ public class CreateSubmarine {
                                         if (side != null && side != Direction.UP && side != Direction.DOWN) return be.energyStorage;
                                         return null;
                                 });
+
         }
         private void onCommonSetup(FMLCommonSetupEvent event) {
                 event.enqueueWork(() -> {

@@ -5,6 +5,11 @@ import com.maxenonyme.createsubmarine.submarine.compartment.CompartmentTracker;
 import com.maxenonyme.createsubmarine.submarine.util.SubLevelRegistry;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.utility.CreateLang;
+import mekanism.api.Action;
+import mekanism.api.AutomationType;
+import mekanism.api.chemical.BasicChemicalTank;
+import mekanism.api.chemical.IChemicalTank;
+import mekanism.common.registries.MekanismChemicals;
 import net.createmod.catnip.lang.LangBuilder;
 import net.minecraft.ChatFormatting;
 import dev.ryanhcode.sable.companion.SableCompanion;
@@ -50,6 +55,12 @@ public class OxygeneDiffuserBlockEntity extends BlockEntity implements IHaveGogg
         }
     };
 
+    public final BasicChemicalTank mekanismOxygenTank = (BasicChemicalTank) BasicChemicalTank.inputModern(
+            CONSUME_AMOUNT,
+            stack -> stack.is(MekanismChemicals.OXYGEN),
+            this::setChanged  // ← IContentsListener, no separate class needed
+    );
+
     private UUID currentSubLevelId = null;
     private boolean subLevelRegistered = false;
     private int activeTicks = 0;
@@ -79,7 +90,7 @@ public class OxygeneDiffuserBlockEntity extends BlockEntity implements IHaveGogg
     public static void tick(Level level, BlockPos pos, BlockState state, OxygeneDiffuserBlockEntity be) {
         if (level == null) return;
 
-        boolean canRun = level.hasNeighborSignal(pos) && be.oxygenTank.getFluidAmount() > 0;
+        boolean canRun = level.hasNeighborSignal(pos) && (be.oxygenTank.getFluidAmount() > 0) || (be.mekanismOxygenTank.getStored() > 0) ;
 
         SubLevelAccess subAccess = SableCompanion.INSTANCE.getContaining(level, pos);
 
@@ -87,7 +98,20 @@ public class OxygeneDiffuserBlockEntity extends BlockEntity implements IHaveGogg
             be.currentSubLevelId = sub.getUniqueId();
             long gameTick = level.getGameTime();
 
+            if (!level.isClientSide && !be.mekanismOxygenTank.isEmpty()) {
+                long space = be.oxygenTank.getCapacity() - be.oxygenTank.getFluidAmount();
+                if (space > 0) {
+                    long toConvert = Math.min(be.mekanismOxygenTank.getStored(), space);
+                    be.mekanismOxygenTank.extract(toConvert, Action.EXECUTE, AutomationType.INTERNAL);
+                    be.oxygenTank.fill(
+                            new FluidStack(CreateSubmarine.OXYGEN.get(), (int) toConvert),
+                            IFluidHandler.FluidAction.EXECUTE
+                    );
+                }
+            }
+
             if (!level.isClientSide) {
+
                 if (gameTick % CONSUME_EVERY == 0) {
                     be.oxygenTank.drain(new FluidStack(CreateSubmarine.OXYGEN.get(), CONSUME_AMOUNT),
                             IFluidHandler.FluidAction.EXECUTE);
