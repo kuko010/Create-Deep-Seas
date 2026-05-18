@@ -52,6 +52,9 @@ repositories {
     maven {
         url = "https://maven.blamejared.com/"
     }
+
+    /* Mekanism */
+    maven { url 'https://modmaven.dev/' }
 }
 
 base {
@@ -115,6 +118,9 @@ dependencies {
         }
     }
 
+    /* Mekanism */
+    compileOnly "mekanism:Mekanism:${mekanism_version}:api"
+    runtimeOnly "mekanism:Mekanism:${mekanism_version}"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
