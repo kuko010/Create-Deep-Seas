@@ -1,5 +1,5 @@
 {
-  "itemGroup.create_submarine": "Create: Submarine",
+  "itemGroup.create_submarine": "Create Deep Seas",
   "block.create_submarine.creative_oxygenator": "Oxygénateur Créatif",
   "item.create_submarine.creative_oxygenator.tooltip.summary": "Retire l'eau quand\nle sous-marin est étanche.",
   "item.create_submarine.creative_oxygenator.tooltip.behaviour1": "Gère automatiquement l'oxygène\net le drainage de l'eau.",
@@ -46,7 +46,7 @@
   "block.create_submarine.glass_pressurizer": "Verre Pressurisé",
   "block.create_submarine.floater": "Flotteur",
 
-  "create_submarine.configuration.title": "Create: Submarine",
+  "create_submarine.configuration.title": "Create Deep Seas",
   "create_submarine.configuration.gameplay": "Gameplay",
   "create_submarine.configuration.hullStrength": "Solidité de la coque",
   "create_submarine.configuration.propulsion": "Propulsion",
@@ -55,7 +55,7 @@
   "create_submarine.configuration.disableImplosion.tooltip": "Désactive tous les dégâts d'implosion de coque causés par la pression de l'eau.",
 
   "create_submarine.configuration.globalMaxDepthCap": "Profondeur max globale",
-  "create_submarine.configuration.globalMaxDepthCap.tooltip": "Plafond appliqué à maxWaterDepth pour tous les blocs hors Create: Submarine. Les valeurs par bloc sont dans config/submarine_hull.json.",
+  "create_submarine.configuration.globalMaxDepthCap.tooltip": "Plafond appliqué à maxWaterDepth pour tous les blocs hors Create Deep Seas. Les valeurs par bloc sont dans config/submarine_hull.json.",
   "create_submarine.configuration.maxDepthMultiplier": "Multiplicateur profondeur max",
   "create_submarine.configuration.maxDepthMultiplier.tooltip": "Multiplicateur runtime sur la maxWaterDepth de chaque bloc. Bas = coques plus fragiles, haut = coques plus solides.",
   "create_submarine.configuration.implosionChanceMultiplier": "Multiplicateur chance d'implosion",

@@ -152,18 +152,22 @@ public class SubmarinePressureSystem {
             return 0;
         }
 
-        int depth = 0;
+        int highestWaterY = startY;
         try {
-            for (int y = startY; y < startY + MAX_WATER_SCAN; y++) {
-                if (level.getFluidState(new BlockPos(x, y, z)).is(net.minecraft.tags.FluidTags.WATER)) {
-                    depth++;
-                } else {
+            for (int y = startY; y < Math.min(startY + MAX_WATER_SCAN, level.getMaxBuildHeight()); y++) {
+                BlockState state = level.getBlockState(new BlockPos(x, y, z));
+                if (state.getFluidState().is(net.minecraft.tags.FluidTags.WATER)) {
+                    highestWaterY = y;
+                } else if (state.isAir() && y >= level.getSeaLevel()) {
                     break;
                 }
             }
         } catch (Exception ignored) {}
 
-        return depth;
+        int measuredDepth = highestWaterY - startY + 1;
+        int seaLevelDepth = level.getSeaLevel() - startY;
+
+        return Math.max(measuredDepth, seaLevelDepth);
     }
 
     private static void applyPressure(UUID id, Level plotLevel, Level oceanLevel, SubLevelAccess sub, BlockPos plotPos, BlockState state, HullStrengthConfig.HullProperty prop, boolean[] creakPlayed) {

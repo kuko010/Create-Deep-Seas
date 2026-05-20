@@ -3,10 +3,30 @@ plugins {
     id 'maven-publish'
     id 'net.neoforged.moddev' version '2.0.141'
     id 'idea'
+    id 'com.modrinth.minotaur' version '2.+'
+    id 'io.github.themrmilchmann.curseforge-publish' version '0.6.1'
 }
 
 tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
+}
+
+def modrinthToken = providers.environmentVariable("MODRINTH_TOKEN").orNull
+def curseforgeToken = providers.environmentVariable("CURSEFORGE_TOKEN").orNull
+def envFile = file(".env")
+if (envFile.exists()) {
+    envFile.eachLine { line ->
+        if (line.contains(":")) {
+            def parts = line.split(":", 2)
+            def key = parts[0].trim()
+            def val = parts[1].trim()
+            if (key == "modrinth" && (modrinthToken == null || modrinthToken.isEmpty())) {
+                modrinthToken = val
+            } else if (key == "curseforge" && (curseforgeToken == null || curseforgeToken.isEmpty())) {
+                curseforgeToken = val
+            }
+        }
+    }
 }
 
 version = mod_version
@@ -114,21 +134,20 @@ dependencies {
             prefer project.sable_companion_version
         }
     }
-
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
     var replaceProperties = [
-            minecraft_version      : minecraft_version,
-            minecraft_version_range: minecraft_version_range,
-            neo_version            : neo_version,
-            neo_version_range      : neo_version_range,
-            loader_version_range   : loader_version_range,
-            sable_version_range    : sable_version_range,
-            mod_id                 : mod_id,
-            mod_name               : mod_name,
-            mod_license            : mod_license,
-            mod_version            : mod_version,
+        minecraft_version      : minecraft_version,
+        minecraft_version_range: minecraft_version_range,
+        neo_version            : neo_version,
+        neo_version_range      : neo_version_range,
+        loader_version_range   : loader_version_range,
+        sable_version_range    : sable_version_range,
+        mod_id                 : mod_id,
+        mod_name               : mod_name,
+        mod_license            : mod_license,
+        mod_version            : mod_version,
     ]
     inputs.properties replaceProperties
     expand replaceProperties
@@ -140,6 +159,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
         buildTimeFile.text = String.valueOf(System.currentTimeMillis())
     }
 }
+
 sourceSets.main.resources.srcDir generateModMetadata
 neoForge.ideSyncTask generateModMetadata
 
@@ -171,4 +191,49 @@ task printClasspath {
     doLast {
         file('classpath.txt').text = sourceSets.main.compileClasspath.join(System.getProperty('path.separator'))
     }
+}
+
+def changelogFile = file("changelog.md")
+def changelogText = changelogFile.exists() ? changelogFile.text : "No changelog provided."
+
+modrinth {
+    token = modrinthToken
+    projectId = "mva5q4qZ" 
+    versionNumber = "${project.version}"
+    versionName = "Create Deep Seas ${project.version}"
+    versionType = "alpha" 
+    uploadFile = tasks.jar
+    gameVersions = ["1.21.1"]
+    loaders = ["neoforge"]
+    changelog = changelogText
+    syncBodyFrom = file("README.md").exists() ? file("README.md").text : null
+
+    dependencies {
+        required.project("create")
+    }
+}
+
+tasks.named("modrinth").configure {
+    dependsOn(tasks.named("build"))
+}
+
+
+curseforge {
+    apiToken = curseforgeToken
+
+    publications {
+        register("curseForge") {
+            projectId = "1533137" 
+            artifacts.register("main") {
+                from(tasks.jar)
+                displayName = "Create Deep Seas ${project.version}"
+                releaseType = "alpha"
+                changelog = changelogText
+            }
+        }
+    }
+}
+
+tasks.matching { it.name == "publishCurseForgePublicationToCurseForge" }.configureEach {
+    dependsOn(tasks.named("build"))
 }
