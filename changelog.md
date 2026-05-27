@@ -21,6 +21,7 @@
 - **Biome Modifiers:** Implemented world generation modifiers for amplified, large biomes, and default world types.
 
 ### Renders, Compatibility & Performance
+- **Early Startup Config Access Fix:** Resolved an initialization crash (`IllegalStateException: Cannot get config value before config is loaded`) in `PermanentWaterCullingTest` that occurred when early-ticking client mods (such as Xaero's Train Map) triggered ticks before NeoForge configurations loaded.
 - **Sodium & Veil Shaders:** Integrated critical rendering compatibility mixins for Sodium and Veil pipelines.
 - **Sable Network Synchronizations:** Resolved package de-synchronization issues under active tracking states.
 - **General Asset Cleanup:** Removed outdated model textures and unused assets to optimize mod footprint.

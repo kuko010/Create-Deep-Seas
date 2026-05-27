@@ -38,8 +38,11 @@ import java.util.UUID;
 public final class PermanentWaterCullingTest {
 
     public static boolean isEnabled() {
-        return com.maxenonyme.createsubmarine.submarine.config.SubmarineConfig.ENABLE_PERMANENT_WATER_CULLING_TEST
-                .get();
+        try {
+            return com.maxenonyme.createsubmarine.submarine.config.SubmarineConfig.ENABLE_PERMANENT_WATER_CULLING_TEST.get();
+        } catch (IllegalStateException e) {
+            return false;
+        }
     }
 
     private static final int UPDATE_INTERVAL_TICKS = 40;
