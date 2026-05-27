@@ -102,4 +102,11 @@ public class BallastVentBlock extends HorizontalKineticBlock implements EntityBl
             case WEST -> WEST;
         };
     }
+
+    @Override
+    public java.util.List<net.minecraft.world.item.ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+        java.util.List<net.minecraft.world.item.ItemStack> drops = new java.util.ArrayList<>();
+        drops.add(new net.minecraft.world.item.ItemStack(this));
+        return drops;
+    }
 }

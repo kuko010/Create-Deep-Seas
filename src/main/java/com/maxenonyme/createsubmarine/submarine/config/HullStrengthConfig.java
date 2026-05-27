@@ -177,7 +177,8 @@ public class HullStrengthConfig {
         map.put("create_submarine:ballast_tank",        new HullProperty(230, 0.04f));
         map.put("create_submarine:ballast_vent",        new HullProperty(220, 0.05f));
         map.put("create_submarine:water_thruster",      new HullProperty(220, 0.05f));
-        map.put("create_submarine:glass_pressurizer",   new HullProperty(200, 0.06f));
+        map.put("create_submarine:iron_pressurizer",    new HullProperty(200, 0.06f));
+        map.put("create_submarine:copper_pressurizer",  new HullProperty(200, 0.06f));
         map.put("create_submarine:electrolyzer",        new HullProperty(200, 0.06f));
         map.put("create_submarine:oxygene_diffuser",    new HullProperty(180, 0.07f));
         map.put("create_submarine:industrial_alarm",    new HullProperty(160, 0.08f));

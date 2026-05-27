@@ -65,7 +65,14 @@ public class ElectrolyzerBlock extends Block implements EntityBlock {
     public <T extends BlockEntity> net.minecraft.world.level.block.entity.BlockEntityTicker<T> getTicker(Level level,
             BlockState state, net.minecraft.world.level.block.entity.BlockEntityType<T> type) {
         return type == CreateSubmarine.ELECTROLYZER_BE.get()
-                ? (l, p, s, be) -> ElectrolyzerBlockEntity.tick(l, p, s, (ElectrolyzerBlockEntity) be)
-                : null;
+            ? (l, p, s, be) -> ElectrolyzerBlockEntity.tick(l, p, s, (ElectrolyzerBlockEntity) be)
+            : null;
+    }
+
+    @Override
+    public java.util.List<net.minecraft.world.item.ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+        java.util.List<net.minecraft.world.item.ItemStack> drops = new java.util.ArrayList<>();
+        drops.add(new net.minecraft.world.item.ItemStack(this));
+        return drops;
     }
 }

@@ -131,4 +131,11 @@ public class IndustrialAlarmBlock extends DirectionalBlock implements SimpleWate
     protected MapCodec<? extends DirectionalBlock> codec() {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public java.util.List<net.minecraft.world.item.ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+        java.util.List<net.minecraft.world.item.ItemStack> drops = new java.util.ArrayList<>();
+        drops.add(new net.minecraft.world.item.ItemStack(this));
+        return drops;
+    }
 }

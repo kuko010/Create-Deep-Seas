@@ -29,4 +29,11 @@ public class BallastTankBlock extends Block implements EntityBlock {
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
+
+    @Override
+    public java.util.List<net.minecraft.world.item.ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+        java.util.List<net.minecraft.world.item.ItemStack> drops = new java.util.ArrayList<>();
+        drops.add(new net.minecraft.world.item.ItemStack(this));
+        return drops;
+    }
 }

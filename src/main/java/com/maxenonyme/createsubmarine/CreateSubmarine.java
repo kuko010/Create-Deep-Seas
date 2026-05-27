@@ -108,7 +108,7 @@ public class CreateSubmarine {
                         .register("suffocation",
                                         SuffocationEffect::new);
         public static final Supplier<Block> CREATIVE_OXYGENATOR = BLOCKS.register("creative_oxygenator",
-                        () -> new HullControllerBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
+                        () -> new HullControllerBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.OBSIDIAN)));
         public static final Supplier<Item> CREATIVE_OXYGENATOR_ITEM = ITEMS.register("creative_oxygenator",
                         () -> new com.maxenonyme.createsubmarine.submarine.block.CreativeOxygenatorItem(
                                         CREATIVE_OXYGENATOR.get(), new net.minecraft.world.item.Item.Properties()
@@ -128,7 +128,7 @@ public class CreateSubmarine {
                         () -> BlockEntityType.Builder.of(BallastTankBlockEntity::new, BALLAST_TANK.get()).build(null));
         public static final Supplier<Block> BALLAST_VENT = BLOCKS.register("ballast_vent",
                         () -> new BallastVentBlock(
-                                        BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).noOcclusion()));
+                                        BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK).noOcclusion()));
         public static final Supplier<Item> BALLAST_VENT_ITEM = ITEMS.register("ballast_vent",
                         () -> new net.minecraft.world.item.BlockItem(BALLAST_VENT.get(), new Item.Properties()));
         public static final Supplier<BlockEntityType<BallastVentBlockEntity>> BALLAST_VENT_BE = BLOCK_ENTITIES.register(
@@ -136,7 +136,7 @@ public class CreateSubmarine {
                         () -> BlockEntityType.Builder.of(BallastVentBlockEntity::new, BALLAST_VENT.get()).build(null));
         public static final Supplier<Block> OXYGENE_DIFFUSER = BLOCKS.register("oxygene_diffuser",
                         () -> new OxygeneDiffuserBlock(
-                                        BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).noOcclusion()));
+                                        BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK).noOcclusion()));
         public static final Supplier<Item> OXYGENE_DIFFUSER_ITEM = ITEMS.register("oxygene_diffuser",
                         () -> new net.minecraft.world.item.BlockItem(OXYGENE_DIFFUSER.get(), new Item.Properties()));
         public static final Supplier<BlockEntityType<OxygeneDiffuserBlockEntity>> OXYGENE_DIFFUSER_BE = BLOCK_ENTITIES
@@ -148,7 +148,7 @@ public class CreateSubmarine {
                         () -> SoundEvent.createVariableRangeEvent(
                                         ResourceLocation.fromNamespaceAndPath(MOD_ID, "implosion")));
         public static final Supplier<Block> ELECTROLYZER = BLOCKS.register("electrolyzer",
-                        () -> new ElectrolyzerBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)
+                        () -> new ElectrolyzerBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK)
                                         .noOcclusion()
                                         .isViewBlocking((state, level, pos) -> false)
                                         .isSuffocating((state, level, pos) -> false)));
@@ -173,7 +173,7 @@ public class CreateSubmarine {
                                                         INDUSTRIAL_ALARM.get()).build(null));
         public static final Supplier<Block> WATER_THRUSTER = BLOCKS.register("water_thruster",
                         () -> new WaterThrusterBlock(
-                                        BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).noOcclusion()));
+                                        BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK).noOcclusion()));
         public static final Supplier<Item> WATER_THRUSTER_ITEM = ITEMS.register("water_thruster",
                         () -> new net.minecraft.world.item.BlockItem(WATER_THRUSTER.get(), new Item.Properties()));
         public static final Supplier<BlockEntityType<WaterThrusterBlockEntity>> WATER_THRUSTER_BE = BLOCK_ENTITIES
@@ -186,21 +186,48 @@ public class CreateSubmarine {
                         .register("electrolyzer",
                                         () -> net.neoforged.neoforge.common.extensions.IMenuTypeExtension.create(
                                                         com.maxenonyme.createsubmarine.submarine.gui.ElectrolyzerMenu::new));
-        public static final Supplier<Block> GLASS_PRESSURIZER = BLOCKS.register("glass_pressurizer",
+        public static final Supplier<Block> IRON_PRESSURIZER = BLOCKS.register("iron_pressurizer",
                         () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)
+                                        .strength(5.0F, 1200.0F)
                                         .noOcclusion()
                                         .isViewBlocking((state, level, pos) -> false)
-                                        .isSuffocating((state, level, pos) -> false)));
-        public static final Supplier<Item> GLASS_PRESSURIZER_ITEM = ITEMS.register("glass_pressurizer",
-                        () -> new net.minecraft.world.item.BlockItem(GLASS_PRESSURIZER.get(), new Item.Properties()));
+                                        .isSuffocating((state, level, pos) -> false)) {
+                                @Override
+                                public java.util.List<ItemStack> getDrops(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+                                        java.util.List<ItemStack> drops = new java.util.ArrayList<>();
+                                        drops.add(new ItemStack(this));
+                                        return drops;
+                                }
+                        });
+        public static final Supplier<Item> IRON_PRESSURIZER_ITEM = ITEMS.register("iron_pressurizer",
+                        () -> new com.maxenonyme.createsubmarine.submarine.block.PressurizerItem(IRON_PRESSURIZER.get(), new Item.Properties()));
+
+        public static final Supplier<Block> COPPER_PRESSURIZER = BLOCKS.register("copper_pressurizer",
+                        () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)
+                                        .strength(5.0F, 1200.0F)
+                                        .noOcclusion()
+                                        .isViewBlocking((state, level, pos) -> false)
+                                        .isSuffocating((state, level, pos) -> false)) {
+                                @Override
+                                public java.util.List<ItemStack> getDrops(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+                                        java.util.List<ItemStack> drops = new java.util.ArrayList<>();
+                                        drops.add(new ItemStack(this));
+                                        return drops;
+                                }
+                        });
+        public static final Supplier<Item> COPPER_PRESSURIZER_ITEM = ITEMS.register("copper_pressurizer",
+                        () -> new com.maxenonyme.createsubmarine.submarine.block.PressurizerItem(COPPER_PRESSURIZER.get(), new Item.Properties()));
 
         public static final Supplier<Block> FLOATER = BLOCKS.register("floater",
-                        () -> new FloaterBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).noOcclusion()));
+                        () -> new FloaterBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL).noOcclusion()));
         public static final Supplier<Item> FLOATER_ITEM = ITEMS.register("floater",
                         () -> new net.minecraft.world.item.BlockItem(FLOATER.get(), new Item.Properties()));
         public static final Supplier<BlockEntityType<FloaterBlockEntity>> FLOATER_BE = BLOCK_ENTITIES.register(
                         "floater",
                         () -> BlockEntityType.Builder.of(FloaterBlockEntity::new, FLOATER.get()).build(null));
+        public static final Supplier<Item> PHYCOLOGICAL_MEMBRANE = ITEMS.register("phycological_membrane",
+                        () -> new net.minecraft.world.item.Item(new net.minecraft.world.item.Item.Properties()
+                                        .rarity(net.minecraft.world.item.Rarity.UNCOMMON)));
 
         public CreateSubmarine(IEventBus modEventBus, ModContainer modContainer) {
                 modContainer.registerConfig(ModConfig.Type.COMMON, SubmarineConfig.SPEC);
@@ -327,11 +354,16 @@ public class CreateSubmarine {
                         itemToSection.put(ResourceLocation.fromNamespaceAndPath(MOD_ID, "electrolyzer"), subSection);
                         tabItems.add(WATER_THRUSTER_ITEM::get);
                         itemToSection.put(ResourceLocation.fromNamespaceAndPath(MOD_ID, "water_thruster"), subSection);
-                        tabItems.add(GLASS_PRESSURIZER_ITEM::get);
-                        itemToSection.put(ResourceLocation.fromNamespaceAndPath(MOD_ID, "glass_pressurizer"),
+                        tabItems.add(IRON_PRESSURIZER_ITEM::get);
+                        itemToSection.put(ResourceLocation.fromNamespaceAndPath(MOD_ID, "iron_pressurizer"),
+                                        subSection);
+                        tabItems.add(COPPER_PRESSURIZER_ITEM::get);
+                        itemToSection.put(ResourceLocation.fromNamespaceAndPath(MOD_ID, "copper_pressurizer"),
                                         subSection);
                         tabItems.add(FLOATER_ITEM::get);
                         itemToSection.put(ResourceLocation.fromNamespaceAndPath(MOD_ID, "floater"), subSection);
+                        tabItems.add(PHYCOLOGICAL_MEMBRANE::get);
+                        itemToSection.put(ResourceLocation.fromNamespaceAndPath(MOD_ID, "phycological_membrane"), subSection);
                 } catch (Exception ignored) {
                 }
         }
