@@ -57,9 +57,9 @@ public class CreateSubmarine {
         public static final DeferredRegister<com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.levelgen.DensityFunction>> DENSITY_FUNCTIONS = DeferredRegister
                         .create(BuiltInRegistries.DENSITY_FUNCTION_TYPE, MOD_ID);
 
-        public static final Supplier<com.mojang.serialization.MapCodec<com.maxenonyme.createsubmarine.abyss.AbyssDepthMultiplier>> ABYSS_DEPTH_MULTIPLIER = DENSITY_FUNCTIONS
-                        .register("abyss_depth_multiplier",
-                                        () -> com.maxenonyme.createsubmarine.abyss.AbyssDepthMultiplier.CODEC);
+        public static final Supplier<com.mojang.serialization.MapCodec<com.maxenonyme.createsubmarine.worldgen.OceanDepthOffset>> OCEAN_DEPTH_OFFSET = DENSITY_FUNCTIONS
+                        .register("ocean_depth_offset",
+                                        () -> com.maxenonyme.createsubmarine.worldgen.OceanDepthOffset.CODEC);
 
         public static final net.neoforged.neoforge.registries.DeferredHolder<FluidType, FluidType> OXYGEN_TYPE = FLUID_TYPES
                         .register("oxygen",
@@ -189,32 +189,20 @@ public class CreateSubmarine {
         public static final Supplier<Block> IRON_PRESSURIZER = BLOCKS.register("iron_pressurizer",
                         () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)
                                         .strength(5.0F, 1200.0F)
+                                        .requiresCorrectToolForDrops()
                                         .noOcclusion()
                                         .isViewBlocking((state, level, pos) -> false)
-                                        .isSuffocating((state, level, pos) -> false)) {
-                                @Override
-                                public java.util.List<ItemStack> getDrops(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
-                                        java.util.List<ItemStack> drops = new java.util.ArrayList<>();
-                                        drops.add(new ItemStack(this));
-                                        return drops;
-                                }
-                        });
+                                        .isSuffocating((state, level, pos) -> false)));
         public static final Supplier<Item> IRON_PRESSURIZER_ITEM = ITEMS.register("iron_pressurizer",
                         () -> new com.maxenonyme.createsubmarine.submarine.block.PressurizerItem(IRON_PRESSURIZER.get(), new Item.Properties()));
 
         public static final Supplier<Block> COPPER_PRESSURIZER = BLOCKS.register("copper_pressurizer",
                         () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)
                                         .strength(5.0F, 1200.0F)
+                                        .requiresCorrectToolForDrops()
                                         .noOcclusion()
                                         .isViewBlocking((state, level, pos) -> false)
-                                        .isSuffocating((state, level, pos) -> false)) {
-                                @Override
-                                public java.util.List<ItemStack> getDrops(net.minecraft.world.level.block.state.BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
-                                        java.util.List<ItemStack> drops = new java.util.ArrayList<>();
-                                        drops.add(new ItemStack(this));
-                                        return drops;
-                                }
-                        });
+                                        .isSuffocating((state, level, pos) -> false)));
         public static final Supplier<Item> COPPER_PRESSURIZER_ITEM = ITEMS.register("copper_pressurizer",
                         () -> new com.maxenonyme.createsubmarine.submarine.block.PressurizerItem(COPPER_PRESSURIZER.get(), new Item.Properties()));
 
@@ -284,6 +272,14 @@ public class CreateSubmarine {
                                 com.maxenonyme.createsubmarine.submarine.network.ElectrolyzerTogglePayload.TYPE,
                                 com.maxenonyme.createsubmarine.submarine.network.ElectrolyzerTogglePayload.CODEC,
                                 com.maxenonyme.createsubmarine.submarine.network.ElectrolyzerTogglePayload::handle);
+                registrar.playToClient(
+                                com.maxenonyme.createsubmarine.submarine.network.HullConfigSyncPayload.TYPE,
+                                com.maxenonyme.createsubmarine.submarine.network.HullConfigSyncPayload.CODEC,
+                                com.maxenonyme.createsubmarine.submarine.network.HullConfigSyncPayload::handle);
+                registrar.playToServer(
+                                com.maxenonyme.createsubmarine.submarine.network.HullConfigEditPayload.TYPE,
+                                com.maxenonyme.createsubmarine.submarine.network.HullConfigEditPayload.CODEC,
+                                com.maxenonyme.createsubmarine.submarine.network.HullConfigEditPayload::handle);
         }
 
         private void registerCapabilities(net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent event) {

@@ -276,12 +276,12 @@ public class BallastVentBlockEntity extends KineticBlockEntity {
         sub.logicalPose().transformPosition(worldPos);
         BlockPos wPos = BlockPos.containing(worldPos.x, worldPos.y, worldPos.z);
         Level parentLevel = SubLevelRegistry.getLevel(sub.getUniqueId());
-        if (parentLevel == null && level.getServer() != null) {
-            parentLevel = level.getServer().overworld();
+        if (parentLevel == null && sub instanceof dev.ryanhcode.sable.sublevel.SubLevel sl) {
+            parentLevel = sl.getLevel();
         }
         if (parentLevel == null)
             return false;
-        return parentLevel.getFluidState(wPos).is(FluidTags.WATER);
+        return com.maxenonyme.createsubmarine.submarine.compartment.CompartmentTracker.realFluidState(parentLevel, wPos).is(FluidTags.WATER);
     }
 
     @Override

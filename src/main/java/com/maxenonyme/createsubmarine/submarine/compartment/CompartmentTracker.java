@@ -64,17 +64,21 @@ public class CompartmentTracker {
         Set<BlockPos> compromised = COMPROMISED_ANCHORS.getOrDefault(id, Set.of());
         Set<BlockPos> sealed = new HashSet<>();
         Set<BlockPos> visual = new HashSet<>();
-        
-        Set<BlockPos> solid = SOLID_BLOCKS.get(id);
-        if (solid != null) {
-            visual.addAll(solid);
-        }
 
+        boolean anySealed = false;
         for (CompartmentDetector.Component c : comps) {
             if (!c.sealed() || compromised.contains(c.anchor())) continue;
+            anySealed = true;
             sealed.addAll(c.internal());
             visual.addAll(c.internal());
             visual.addAll(c.hull());
+        }
+
+        if (anySealed) {
+            Set<BlockPos> solid = SOLID_BLOCKS.get(id);
+            if (solid != null) {
+                visual.addAll(solid);
+            }
         }
         SEALED_UNION.put(id, Collections.unmodifiableSet(sealed));
         VISUAL_UNION.put(id, Collections.unmodifiableSet(visual));
@@ -256,6 +260,24 @@ public class CompartmentTracker {
     @Nullable
     public static FluidState getLiedFluidState(Level level, BlockPos worldPos) {
         return isOccluded(level, worldPos) ? Fluids.EMPTY.defaultFluidState() : null;
+    }
+
+    public static FluidState realFluidState(Level level, BlockPos pos) {
+        int y = pos.getY();
+        if (y < level.getMinBuildHeight() || y >= level.getMaxBuildHeight())
+            return Fluids.EMPTY.defaultFluidState();
+        net.minecraft.world.level.chunk.ChunkAccess chunk = level.getChunk(
+                pos.getX() >> 4, pos.getZ() >> 4,
+                net.minecraft.world.level.chunk.status.ChunkStatus.FULL, false);
+        if (chunk == null)
+            return Fluids.EMPTY.defaultFluidState();
+        int idx = chunk.getSectionIndex(y);
+        if (idx < 0 || idx >= chunk.getSections().length)
+            return Fluids.EMPTY.defaultFluidState();
+        net.minecraft.world.level.chunk.LevelChunkSection section = chunk.getSection(idx);
+        if (section.hasOnlyAir())
+            return Fluids.EMPTY.defaultFluidState();
+        return section.getBlockState(pos.getX() & 15, y & 15, pos.getZ() & 15).getFluidState();
     }
 
     @Nullable

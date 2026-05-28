@@ -8,6 +8,7 @@
     "create_submarine:electrolyzer",
     "create_submarine:water_thruster",
     "create_submarine:iron_pressurizer",
-    "create_submarine:copper_pressurizer"
+    "create_submarine:copper_pressurizer",
+    "create_submarine:industrial_alarm"
   ]
 }
