@@ -229,18 +229,15 @@ public class BallastTankBlockEntity extends BlockEntity implements IHaveGoggleIn
         double currentVelY = (currentVel != null) ? currentVel.y() : 0;
 
         Level parentLevel = com.maxenonyme.createsubmarine.submarine.util.SubLevelRegistry.getLevel(sub.getUniqueId());
-        if (parentLevel == null && level.getServer() != null) {
-            parentLevel = level.getServer().overworld();
-
-            if (sub instanceof dev.ryanhcode.sable.sublevel.SubLevel sl) {
-                dev.ryanhcode.sable.sublevel.plot.LevelPlot plot = sl.getPlot();
-                if (plot != null) {
-                    dev.ryanhcode.sable.companion.math.BoundingBox3ic bounds = plot.getBoundingBox();
-                    com.maxenonyme.createsubmarine.submarine.util.SubLevelRegistry.register(
-                        sub.getUniqueId(), sub, parentLevel,
-                        new com.maxenonyme.createsubmarine.submarine.util.SubLevelRegistry.PlotBounds(bounds.minX(), bounds.maxX(), bounds.minY(), bounds.maxY(), bounds.minZ(), bounds.maxZ())
-                    );
-                }
+        if (parentLevel == null && sub instanceof dev.ryanhcode.sable.sublevel.SubLevel sl) {
+            dev.ryanhcode.sable.sublevel.plot.LevelPlot plot = sl.getPlot();
+            if (plot != null && sl.getLevel() != null) {
+                parentLevel = sl.getLevel();
+                dev.ryanhcode.sable.companion.math.BoundingBox3ic bounds = plot.getBoundingBox();
+                com.maxenonyme.createsubmarine.submarine.util.SubLevelRegistry.register(
+                    sub.getUniqueId(), sub, parentLevel,
+                    new com.maxenonyme.createsubmarine.submarine.util.SubLevelRegistry.PlotBounds(bounds.minX(), bounds.maxX(), bounds.minY(), bounds.maxY(), bounds.minZ(), bounds.maxZ())
+                );
             }
         }
 
@@ -249,13 +246,13 @@ public class BallastTankBlockEntity extends BlockEntity implements IHaveGoggleIn
         BlockPos parentPos = BlockPos.containing(worldPos.x, worldPos.y, worldPos.z);
         double localWaterSurfaceY = -999.0;
 
-        net.minecraft.world.level.material.FluidState fluidState = parentLevel.getFluidState(parentPos);
+        net.minecraft.world.level.material.FluidState fluidState = com.maxenonyme.createsubmarine.submarine.compartment.CompartmentTracker.realFluidState(parentLevel, parentPos);
         if (fluidState.is(net.minecraft.tags.FluidTags.WATER)) {
             float h = fluidState.getHeight(parentLevel, parentPos);
             localWaterSurfaceY = parentPos.getY() + h + countWaterAbove(parentLevel, parentPos);
         } else {
             BlockPos belowPos = parentPos.below();
-            net.minecraft.world.level.material.FluidState belowFluid = parentLevel.getFluidState(belowPos);
+            net.minecraft.world.level.material.FluidState belowFluid = com.maxenonyme.createsubmarine.submarine.compartment.CompartmentTracker.realFluidState(parentLevel, belowPos);
             if (belowFluid.is(net.minecraft.tags.FluidTags.WATER)) {
                 float h = belowFluid.getHeight(parentLevel, belowPos);
                 localWaterSurfaceY = belowPos.getY() + h + countWaterAbove(parentLevel, belowPos);
@@ -349,8 +346,10 @@ public class BallastTankBlockEntity extends BlockEntity implements IHaveGoggleIn
     }
     private static int countWaterAbove(Level level, BlockPos pos) {
         int depth = 0;
+        BlockPos.MutableBlockPos m = new BlockPos.MutableBlockPos();
         for (int y = pos.getY() + 1; y < pos.getY() + 1 + 200; y++) {
-            if (level.getFluidState(new BlockPos(pos.getX(), y, pos.getZ())).is(net.minecraft.tags.FluidTags.WATER)) {
+            m.set(pos.getX(), y, pos.getZ());
+            if (com.maxenonyme.createsubmarine.submarine.compartment.CompartmentTracker.realFluidState(level, m).is(net.minecraft.tags.FluidTags.WATER)) {
                 depth++;
             } else {
                 break;

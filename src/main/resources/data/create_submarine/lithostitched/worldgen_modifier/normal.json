@@ -2,7 +2,7 @@
   "type": "lithostitched:wrap_density_function",
   "target_function": "minecraft:overworld/offset",
   "wrapper_function": {
-    "type": "create_submarine:abyss_depth_multiplier",
+    "type": "create_submarine:ocean_depth_offset",
     "input": "minecraft:overworld/offset",
     "continents": "minecraft:overworld/continents"
   }

@@ -216,6 +216,11 @@ public class HullStrengthConfig {
         return new TreeMap<>(values);
     }
 
+    public static void applySynced(Map<String, HullProperty> synced) {
+        values = new HashMap<>(synced);
+        resolvedCache.clear();
+    }
+
     public static void update(String key, int maxWaterDepth, float implosionChance) {
         HullProperty prop = new HullProperty(maxWaterDepth, clamp(implosionChance));
         values.put(key, prop);

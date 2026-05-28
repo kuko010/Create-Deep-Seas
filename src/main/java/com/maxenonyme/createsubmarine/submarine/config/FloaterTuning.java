@@ -20,6 +20,8 @@ public class FloaterTuning {
     private static volatile double surfaceTaperDistance = 1.5;
 
     private static long lastMtime = -1;
+    private static long lastCheckNanos = 0;
+    private static final long CHECK_INTERVAL_NS = 5_000_000_000L;
 
     public static double liftPerBlock() { tryReload(); return liftPerBlock; }
     public static double verticalDrag() { tryReload(); return verticalDrag; }
@@ -27,6 +29,9 @@ public class FloaterTuning {
     public static double surfaceTaperDistance() { tryReload(); return surfaceTaperDistance; }
 
     private static void tryReload() {
+        long now = System.nanoTime();
+        if (lastCheckNanos != 0 && now - lastCheckNanos < CHECK_INTERVAL_NS) return;
+        lastCheckNanos = now;
         try {
             if (!Files.exists(PATH)) {
                 writeDefaults();
@@ -35,14 +40,14 @@ public class FloaterTuning {
             }
             long mtime = Files.getLastModifiedTime(PATH).toMillis();
             if (mtime == lastMtime) return;
-            lastMtime = mtime;
 
             JsonObject json = JsonParser.parseString(Files.readString(PATH)).getAsJsonObject();
             if (json.has("lift_per_block")) liftPerBlock = json.get("lift_per_block").getAsDouble();
             if (json.has("vertical_drag")) verticalDrag = json.get("vertical_drag").getAsDouble();
             if (json.has("horizontal_drag")) horizontalDrag = json.get("horizontal_drag").getAsDouble();
             if (json.has("surface_taper_distance")) surfaceTaperDistance = json.get("surface_taper_distance").getAsDouble();
-        } catch (IOException ignored) {}
+            lastMtime = mtime;
+        } catch (Exception ignored) {}
     }
 
     private static void writeDefaults() throws IOException {

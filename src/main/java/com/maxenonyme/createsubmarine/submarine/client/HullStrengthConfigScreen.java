@@ -23,6 +23,7 @@ public class HullStrengthConfigScreen extends Screen {
     private final ModContainer modContainer;
     private final Screen parentScreen;
     private final Map<String, HullStrengthConfig.HullProperty> editedValues = new TreeMap<>();
+    private final java.util.Set<String> dirtyKeys = new java.util.HashSet<>();
 
     private EditBox searchBox;
     private BlockList blockList;
@@ -136,19 +137,30 @@ public class HullStrengthConfigScreen extends Screen {
             int depth = Integer.parseInt(this.maxDepthBox.getValue());
             float chance = Float.parseFloat(this.implosionBox.getValue());
             this.editedValues.put(this.selectedBlock.key, new HullStrengthConfig.HullProperty(depth, chance));
+            this.dirtyKeys.add(this.selectedBlock.key);
         } catch (NumberFormatException ignored) {}
     }
 
     private void onSave() {
-        this.editedValues.forEach((key, prop) -> {
-            HullStrengthConfig.update(key, prop.maxWaterDepth(), prop.implosionChance());
-        });
-        HullStrengthConfig.save();
+        if (this.minecraft.getConnection() != null) {
+            Map<String, HullStrengthConfig.HullProperty> changed = new java.util.HashMap<>();
+            for (String key : this.dirtyKeys) {
+                HullStrengthConfig.HullProperty prop = this.editedValues.get(key);
+                if (prop != null) changed.put(key, prop);
+            }
+            if (!changed.isEmpty()) {
+                net.neoforged.neoforge.network.PacketDistributor.sendToServer(
+                        new com.maxenonyme.createsubmarine.submarine.network.HullConfigEditPayload(changed));
+            }
+        } else {
+            this.editedValues.forEach((key, prop) ->
+                    HullStrengthConfig.update(key, prop.maxWaterDepth(), prop.implosionChance()));
+            HullStrengthConfig.save();
+        }
         this.minecraft.setScreen(this.parentScreen);
     }
 
     private void onCancel() {
-        HullStrengthConfig.load();
         this.minecraft.setScreen(this.parentScreen);
     }
 

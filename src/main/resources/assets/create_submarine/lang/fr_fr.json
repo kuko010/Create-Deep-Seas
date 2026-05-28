@@ -76,8 +76,8 @@
   "create_submarine.configuration.experimental.tooltip": "Fonctionnalités expérimentales, peuvent casser.",
   "create_submarine.configuration.enablePermanentWaterCullingTest": "Test d'Occlusion d'Eau",
   "create_submarine.configuration.enablePermanentWaterCullingTest.tooltip": "Active le test expérimental d'occlusion d'eau permanente pour les sous-marins et les bateaux.",
-  "create_submarine.configuration.enableAbyssGeneration": "Génération de l'Abysse",
-  "create_submarine.configuration.enableAbyssGeneration.tooltip": "Génère des poches du biome Abysse et les fosses océaniques profondes associées. Désactivé = profondeur océanique vanilla, pas de biome Abysse.",
+  "create_submarine.configuration.enableDeeperOceans": "Océans plus profonds",
+  "create_submarine.configuration.enableDeeperOceans.tooltip": "Approfondit le fond océanique d'environ 10 blocs. Désactivé = profondeur océanique vanilla.",
   "item.create_submarine.phycological_membrane": "Membrane Phycologique",
   "item.create_submarine.phycological_membrane.tooltip.summary": "Peut être remplie d'air."
 }

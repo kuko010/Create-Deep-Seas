@@ -37,11 +37,4 @@ public class OxygeneDiffuserBlock extends Block implements EntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return type == CreateSubmarine.OXYGENE_DIFFUSER_BE.get() ? (lvl, p, st, be) -> OxygeneDiffuserBlockEntity.tick(lvl, p, st, (OxygeneDiffuserBlockEntity) be) : null;
     }
-
-    @Override
-    public java.util.List<net.minecraft.world.item.ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
-        java.util.List<net.minecraft.world.item.ItemStack> drops = new java.util.ArrayList<>();
-        drops.add(new net.minecraft.world.item.ItemStack(this));
-        return drops;
-    }
 }

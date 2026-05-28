@@ -43,10 +43,11 @@ public class FloaterBlockEntity extends BlockEntity {
         SubLevelRegistry.PlotBounds bounds = SubLevelRegistry.getBounds(id);
         int count = 0;
         if (bounds != null && !bounds.isEmpty()) {
+            BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
             for (int x = bounds.minX(); x <= bounds.maxX(); x++) {
                 for (int y = bounds.minY(); y <= bounds.maxY(); y++) {
                     for (int z = bounds.minZ(); z <= bounds.maxZ(); z++) {
-                        BlockPos p = new BlockPos(x, y, z);
+                        p.set(x, y, z);
                         if (level.getBlockState(p).is(CreateSubmarine.FLOATER.get())) {
                             count++;
                         }
@@ -98,8 +99,8 @@ public class FloaterBlockEntity extends BlockEntity {
         double currentVelY = (currentVel != null) ? currentVel.y() : 0;
 
         Level parentLevel = SubLevelRegistry.getLevel(sub.getUniqueId());
-        if (parentLevel == null && level.getServer() != null) {
-            parentLevel = level.getServer().overworld();
+        if (parentLevel == null && sub instanceof dev.ryanhcode.sable.sublevel.SubLevel sl) {
+            parentLevel = sl.getLevel();
         }
 
         if (parentLevel == null)
@@ -108,13 +109,13 @@ public class FloaterBlockEntity extends BlockEntity {
         BlockPos parentPos = BlockPos.containing(worldPos.x, worldPos.y, worldPos.z);
         double localWaterSurfaceY = -999.0;
 
-        net.minecraft.world.level.material.FluidState fluidState = parentLevel.getFluidState(parentPos);
+        net.minecraft.world.level.material.FluidState fluidState = com.maxenonyme.createsubmarine.submarine.compartment.CompartmentTracker.realFluidState(parentLevel, parentPos);
         if (fluidState.is(FluidTags.WATER)) {
             float h = fluidState.getHeight(parentLevel, parentPos);
             localWaterSurfaceY = parentPos.getY() + h + countWaterAbove(parentLevel, parentPos);
         } else {
             BlockPos belowPos = parentPos.below();
-            net.minecraft.world.level.material.FluidState belowFluid = parentLevel.getFluidState(belowPos);
+            net.minecraft.world.level.material.FluidState belowFluid = com.maxenonyme.createsubmarine.submarine.compartment.CompartmentTracker.realFluidState(parentLevel, belowPos);
             if (belowFluid.is(FluidTags.WATER)) {
                 float h = belowFluid.getHeight(parentLevel, belowPos);
                 localWaterSurfaceY = belowPos.getY() + h + countWaterAbove(parentLevel, belowPos);
@@ -153,8 +154,10 @@ public class FloaterBlockEntity extends BlockEntity {
 
     private static int countWaterAbove(Level level, BlockPos pos) {
         int depth = 0;
+        BlockPos.MutableBlockPos m = new BlockPos.MutableBlockPos();
         for (int y = pos.getY() + 1; y < pos.getY() + 1 + MAX_WATER_SCAN; y++) {
-            if (level.getFluidState(new BlockPos(pos.getX(), y, pos.getZ())).is(FluidTags.WATER)) {
+            m.set(pos.getX(), y, pos.getZ());
+            if (com.maxenonyme.createsubmarine.submarine.compartment.CompartmentTracker.realFluidState(level, m).is(FluidTags.WATER)) {
                 depth++;
             } else {
                 break;

@@ -68,11 +68,4 @@ public class ElectrolyzerBlock extends Block implements EntityBlock {
             ? (l, p, s, be) -> ElectrolyzerBlockEntity.tick(l, p, s, (ElectrolyzerBlockEntity) be)
             : null;
     }
-
-    @Override
-    public java.util.List<net.minecraft.world.item.ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
-        java.util.List<net.minecraft.world.item.ItemStack> drops = new java.util.ArrayList<>();
-        drops.add(new net.minecraft.world.item.ItemStack(this));
-        return drops;
-    }
 }

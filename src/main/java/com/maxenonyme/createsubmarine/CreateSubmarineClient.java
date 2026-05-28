@@ -47,6 +47,7 @@ public final class CreateSubmarineClient {
             SubLevelCrackRenderer.clearAll();
             SubLevelRegistry.clearAll();
             CompartmentTracker.clearAll();
+            com.maxenonyme.createsubmarine.submarine.config.HullStrengthConfig.load();
         });
     }
 
