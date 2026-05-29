@@ -275,6 +275,11 @@ public class CompartmentTracker {
                 net.minecraft.world.level.chunk.status.ChunkStatus.FULL, false);
         if (chunk == null)
             return Fluids.EMPTY.defaultFluidState();
+        return realFluidState(chunk, pos);
+    }
+
+    public static FluidState realFluidState(net.minecraft.world.level.chunk.ChunkAccess chunk, BlockPos pos) {
+        int y = pos.getY();
         int idx = chunk.getSectionIndex(y);
         if (idx < 0 || idx >= chunk.getSections().length)
             return Fluids.EMPTY.defaultFluidState();

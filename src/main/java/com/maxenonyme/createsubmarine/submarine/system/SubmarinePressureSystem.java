@@ -153,11 +153,17 @@ public class SubmarinePressureSystem {
 
         int surfaceY = Integer.MIN_VALUE;
         int top = Math.min(startY + MAX_WATER_SCAN, level.getMaxBuildHeight());
+        net.minecraft.world.level.chunk.ChunkAccess chunk = level.getChunk(
+                x >> 4, z >> 4,
+                net.minecraft.world.level.chunk.status.ChunkStatus.FULL, false);
+        if (chunk == null)
+            return Integer.MIN_VALUE;
+
         BlockPos.MutableBlockPos m = new BlockPos.MutableBlockPos();
         try {
             for (int y = startY; y < top; y++) {
                 m.set(x, y, z);
-                if (CompartmentTracker.realFluidState(level, m).is(net.minecraft.tags.FluidTags.WATER)) {
+                if (CompartmentTracker.realFluidState(chunk, m).is(net.minecraft.tags.FluidTags.WATER)) {
                     surfaceY = y;
                 } else if (y >= seaLevel) {
                     break;

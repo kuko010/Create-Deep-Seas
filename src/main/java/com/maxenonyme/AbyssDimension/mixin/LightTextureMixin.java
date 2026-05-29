@@ -17,10 +17,12 @@ public class LightTextureMixin {
     @Redirect(method = "updateLightTexture", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/NativeImage;setPixelRGBA(III)V"))
     private void createsubmarine$redirectSetPixelRGBA(NativeImage instance, int x, int y, int color) {
         if (PDAManager.isFlickering() && !PDAManager.isLightsOn()) {
-            if (x == 0) {
-                createsubmarine$darkRowCache[y] = color;
+            if (y >= 0 && y < createsubmarine$darkRowCache.length) {
+                if (x == 0) {
+                    createsubmarine$darkRowCache[y] = color;
+                }
+                color = createsubmarine$darkRowCache[y];
             }
-            color = createsubmarine$darkRowCache[y];
         }
         instance.setPixelRGBA(x, y, color);
     }

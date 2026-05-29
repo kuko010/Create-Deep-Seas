@@ -27,6 +27,8 @@ import org.joml.Vector3d;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.ArrayDeque;
 import java.util.UUID;
 import java.util.Random;
 import java.util.Comparator;
@@ -48,15 +50,15 @@ public final class SubmarineLianaCommand {
         }
     }
 
-    private static final List<PendingSpawn> pendingSpawns = new ArrayList<>();
+    private static final Deque<PendingSpawn> pendingSpawns = new ArrayDeque<>();
     private static final List<ServerSubLevel> frozenSubLevels = new ArrayList<>();
-    private static final List<ServerSubLevel> wakeUpQueue = new ArrayList<>();
+    private static final Deque<ServerSubLevel> wakeUpQueue = new ArrayDeque<>();
     private static int spawnCooldown = 0;
     private static boolean batchActive = false;
 
     public static void onServerTick(ServerTickEvent.Post event) {
         if (!wakeUpQueue.isEmpty()) {
-            ServerSubLevel sub = wakeUpQueue.remove(0);
+            ServerSubLevel sub = wakeUpQueue.pollFirst();
             Object handle = SablePhysicsHelper.getHandle(sub);
             SablePhysicsHelper.setAsleep(handle, false);
             return;
@@ -76,7 +78,7 @@ public final class SubmarineLianaCommand {
             spawnCooldown--;
             return;
         }
-        PendingSpawn spawn = pendingSpawns.remove(0);
+        PendingSpawn spawn = pendingSpawns.pollFirst();
         List<ServerSubLevel> spawned = spawnLianaChain(spawn.level, spawn.container, spawn.targetPos, spawn.length);
         if (batchActive && spawned != null) {
             for (ServerSubLevel sub : spawned) {
@@ -179,6 +181,12 @@ public final class SubmarineLianaCommand {
         return 1;
     }
 
+    private static void rollback(ServerLevel level, java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> originalStates) {
+        for (java.util.Map.Entry<BlockPos, net.minecraft.world.level.block.state.BlockState> entry : originalStates.entrySet()) {
+            level.setBlock(entry.getKey(), entry.getValue(), 3);
+        }
+    }
+
     private static List<ServerSubLevel> spawnLianaChain(ServerLevel level, ServerSubLevelContainer container, BlockPos basePos, int length) {
         if (level.getBlockState(basePos.above(1)).is(LianaRegistry.LIANA_BLOCK.get())) {
             return null;
@@ -187,6 +195,9 @@ public final class SubmarineLianaCommand {
         ServerSubLevel[] segments = new ServerSubLevel[numSegments];
         UUID[] segmentIds = new UUID[numSegments];
         double currentY = basePos.getY() + 1.5;
+
+        java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> originalStates = new java.util.HashMap<>();
+        List<ServerSubLevel> assembledSubLevels = new ArrayList<>();
 
         for (int i = 0; i < numSegments; i++) {
             int segmentStart = i * SEGMENT_SIZE;
@@ -200,6 +211,7 @@ public final class SubmarineLianaCommand {
             }
 
             for (BlockPos bp : segmentBlocks) {
+                originalStates.putIfAbsent(bp, level.getBlockState(bp));
                 level.setBlock(bp, LianaRegistry.LIANA_BLOCK.get().defaultBlockState(), 3);
             }
 
@@ -210,8 +222,18 @@ public final class SubmarineLianaCommand {
 
             ServerSubLevel subLevel = SubLevelAssemblyHelper.assembleBlocks(level, plotAnchor, segmentBlocks, bounds);
             if (subLevel == null) {
+                for (ServerSubLevel sub : assembledSubLevels) {
+                    try {
+                        java.lang.reflect.Method method = container.getClass().getMethod("removeSubLevel", dev.ryanhcode.sable.sublevel.SubLevel.class, Class.forName("dev.ryanhcode.sable.api.sublevel.SubLevelRemovalReason"));
+                        Class<?> enumCls = Class.forName("dev.ryanhcode.sable.api.sublevel.SubLevelRemovalReason");
+                        Object reason = enumCls.getEnumConstants()[0];
+                        method.invoke(container, sub, reason);
+                    } catch (Throwable ignored) {}
+                }
+                rollback(level, originalStates);
                 return null;
             }
+            assembledSubLevels.add(subLevel);
 
             Vector3d finalPos = new Vector3d(basePos.getX() + 0.5, currentY, basePos.getZ() + 0.5);
             subLevel.logicalPose().position().set(finalPos);
@@ -225,39 +247,52 @@ public final class SubmarineLianaCommand {
                 int blockIndex = segmentStart + j + 1;
                 if (blockIndex % 5 == 0) {
                     BlockPos seedPos = basePos.above(blockIndex).east(1);
+                    originalStates.putIfAbsent(seedPos, level.getBlockState(seedPos));
                     level.setBlock(seedPos, LianaRegistry.CREEPVINE_SEED.get().defaultBlockState(), 3);
                     BoundingBox3i seedBounds = new BoundingBox3i(seedPos.getX(), seedPos.getY(), seedPos.getZ(), seedPos.getX(), seedPos.getY(), seedPos.getZ());
                     ServerSubLevel seedSubLevel = SubLevelAssemblyHelper.assembleBlocks(level, seedPos, List.of(seedPos), seedBounds);
-                    if (seedSubLevel != null) {
-                        Vector3d seedFinalPos = new Vector3d(finalPos.x + 0.4, finalPos.y + j - 0.4, finalPos.z);
-                        seedSubLevel.logicalPose().position().set(seedFinalPos);
-                        seedSubLevel.updateLastPose();
-                        container.physicsSystem().getPipeline().teleport(seedSubLevel, seedFinalPos, new Quaterniond());
-
-                        BlockPos segmentPlotAnchor = subLevel.getPlot().getCenterBlock();
-                        BlockPos seedPlotAnchor = seedSubLevel.getPlot().getCenterBlock();
-                        Vector3d localAnchorCurrent = new Vector3d(segmentPlotAnchor.getX() + 0.9, segmentPlotAnchor.getY() + j + 0.5, segmentPlotAnchor.getZ() + 0.5);
-                        Vector3d localAnchorNext = new Vector3d(seedPlotAnchor.getX() + 0.5, seedPlotAnchor.getY() + 0.9, seedPlotAnchor.getZ() + 0.5);
-
-                        PhysicsConstraintHandle seedJoint = container.physicsSystem().getPipeline().addConstraint(
-                                subLevel,
-                                seedSubLevel,
-                                new GenericConstraintConfiguration(
-                                        localAnchorCurrent,
-                                        localAnchorNext,
-                                        new Quaterniond(),
-                                        new Quaterniond(),
-                                        EnumSet.of(ConstraintJointAxis.LINEAR_X, ConstraintJointAxis.LINEAR_Y, ConstraintJointAxis.LINEAR_Z)
-                                )
-                        );
-                        if (seedJoint != null) {
-                            seedJoint.setContactsEnabled(false);
+                    if (seedSubLevel == null) {
+                        for (ServerSubLevel sub : assembledSubLevels) {
+                            try {
+                                java.lang.reflect.Method method = container.getClass().getMethod("removeSubLevel", dev.ryanhcode.sable.sublevel.SubLevel.class, Class.forName("dev.ryanhcode.sable.api.sublevel.SubLevelRemovalReason"));
+                                Class<?> enumCls = Class.forName("dev.ryanhcode.sable.api.sublevel.SubLevelRemovalReason");
+                                Object reason = enumCls.getEnumConstants()[0];
+                                method.invoke(container, sub, reason);
+                            } catch (Throwable ignored) {}
                         }
+                        rollback(level, originalStates);
+                        return null;
+                    }
+                    assembledSubLevels.add(seedSubLevel);
 
-                        SubmarineLianaBlockEntity lianaBe = (SubmarineLianaBlockEntity) subLevel.getPlot().getEmbeddedLevelAccessor().getBlockEntity(segmentPlotAnchor);
-                        if (lianaBe != null) {
-                            lianaBe.setSeed(seedSubLevel.getUniqueId());
-                        }
+                    Vector3d seedFinalPos = new Vector3d(finalPos.x + 0.4, finalPos.y + j - 0.4, finalPos.z);
+                    seedSubLevel.logicalPose().position().set(seedFinalPos);
+                    seedSubLevel.updateLastPose();
+                    container.physicsSystem().getPipeline().teleport(seedSubLevel, seedFinalPos, new Quaterniond());
+
+                    BlockPos segmentPlotAnchor = subLevel.getPlot().getCenterBlock();
+                    BlockPos seedPlotAnchor = seedSubLevel.getPlot().getCenterBlock();
+                    Vector3d localAnchorCurrent = new Vector3d(segmentPlotAnchor.getX() + 0.9, segmentPlotAnchor.getY() + j + 0.5, segmentPlotAnchor.getZ() + 0.5);
+                    Vector3d localAnchorNext = new Vector3d(seedPlotAnchor.getX() + 0.5, seedPlotAnchor.getY() + 0.9, seedPlotAnchor.getZ() + 0.5);
+
+                    PhysicsConstraintHandle seedJoint = container.physicsSystem().getPipeline().addConstraint(
+                            subLevel,
+                            seedSubLevel,
+                            new GenericConstraintConfiguration(
+                                    localAnchorCurrent,
+                                    localAnchorNext,
+                                    new Quaterniond(),
+                                    new Quaterniond(),
+                                    EnumSet.of(ConstraintJointAxis.LINEAR_X, ConstraintJointAxis.LINEAR_Y, ConstraintJointAxis.LINEAR_Z)
+                            )
+                    );
+                    if (seedJoint != null) {
+                        seedJoint.setContactsEnabled(false);
+                    }
+
+                    net.minecraft.world.level.block.entity.BlockEntity rawBe = subLevel.getPlot().getEmbeddedLevelAccessor().getBlockEntity(segmentPlotAnchor);
+                    if (rawBe instanceof SubmarineLianaBlockEntity lianaBe) {
+                        lianaBe.setSeed(seedSubLevel.getUniqueId());
                     }
                 }
             }
@@ -268,8 +303,8 @@ public final class SubmarineLianaCommand {
         for (int i = 0; i < numSegments; i++) {
             ServerSubLevel current = segments[i];
             BlockPos plotAnchor = current.getPlot().getCenterBlock();
-            SubmarineLianaBlockEntity be = (SubmarineLianaBlockEntity) current.getPlot().getEmbeddedLevelAccessor().getBlockEntity(plotAnchor);
-            if (be != null) {
+            net.minecraft.world.level.block.entity.BlockEntity rawBe = current.getPlot().getEmbeddedLevelAccessor().getBlockEntity(plotAnchor);
+            if (rawBe instanceof SubmarineLianaBlockEntity be) {
                 be.setController(i == 0);
                 if (i > 0) {
                     be.setParent(segmentIds[i - 1]);

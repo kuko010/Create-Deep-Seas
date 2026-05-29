@@ -67,7 +67,10 @@ public class PDAManager {
 
     public static void queuePDACommand(String text, ResourceLocation sound, int audioDurationMs,
             int overrideWaitTicks) {
-        System.out.println("queuePDACommand Triggered: " + text);
+        if (text == null) {
+            text = "";
+        }
+        com.maxenonyme.createsubmarine.CreateSubmarine.LOGGER.info("queuePDACommand Triggered: {}", text);
         pendingText = text;
         pendingSound = sound;
         pendingAudioDurationMs = audioDurationMs;
@@ -76,7 +79,10 @@ public class PDAManager {
     }
 
     public static void startDialogue(String text, ResourceLocation sound, int audioDurationMs, int overrideWaitTicks) {
-        System.out.println("startDialogue Triggered: " + text);
+        if (text == null) {
+            text = "";
+        }
+        com.maxenonyme.createsubmarine.CreateSubmarine.LOGGER.info("startDialogue Triggered: {}", text);
         activeText = text;
         typedCharsCount = 0;
         ticksSinceFinished = 0;

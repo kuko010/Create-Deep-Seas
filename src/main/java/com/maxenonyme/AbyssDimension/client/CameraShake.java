@@ -22,6 +22,9 @@ public class CameraShake {
     }
 
     public static void tick() {
+        if (Minecraft.getInstance().isPaused()) {
+            return;
+        }
         if (shakeTicks > 0) {
             shakeTicks--;
         }

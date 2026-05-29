@@ -25,6 +25,7 @@ public final class SubmarineInfoCommand {
     public static void register(RegisterCommandsEvent event) {
         event.getDispatcher().register(
                 Commands.literal("submarine")
+                        .requires(source -> source.hasPermission(2))
                         .then(Commands.literal("info").executes(SubmarineInfoCommand::run)));
     }
 
@@ -73,7 +74,7 @@ public final class SubmarineInfoCommand {
 
         int controllers = 0, diffusers = 0, floaters = 0;
         long volume = (long) (b.maxX() - b.minX() + 1) * (b.maxY() - b.minY() + 1) * (b.maxZ() - b.minZ() + 1);
-        boolean scanned = subLevel != null && volume <= 400_000;
+        boolean scanned = subLevel != null && volume <= 50_000;
         if (scanned) {
             BlockPos.MutableBlockPos m = new BlockPos.MutableBlockPos();
             for (int x = b.minX(); x <= b.maxX(); x++) {

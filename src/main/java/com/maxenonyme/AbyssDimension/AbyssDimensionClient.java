@@ -11,11 +11,12 @@ import net.neoforged.neoforge.client.event.ViewportEvent;
 
 @EventBusSubscriber(modid = "create_submarine", bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class AbyssDimensionClient {
+    private static final ResourceLocation ABYSS_DIM = ResourceLocation.fromNamespaceAndPath("create_submarine", "abyss");
 
     @SubscribeEvent
     public static void onRegisterDimensionEffects(RegisterDimensionSpecialEffectsEvent event) {
         event.register(
-            ResourceLocation.fromNamespaceAndPath("create_submarine", "abyss"),
+            ABYSS_DIM,
             new AbyssSpecialEffects()
         );
     }
@@ -26,7 +27,7 @@ public class AbyssDimensionClient {
         @SubscribeEvent
         public static void onRenderFog(ViewportEvent.RenderFog event) {
             Minecraft mc = Minecraft.getInstance();
-            if (mc.level != null && mc.level.dimension().location().toString().equals("create_submarine:abyss")) {
+            if (mc.level != null && mc.level.dimension().location().equals(ABYSS_DIM)) {
                 if (event.getCamera().getFluidInCamera() == net.minecraft.world.level.material.FogType.WATER) {
                     event.setNearPlaneDistance(-4.0F);
                     event.setFarPlaneDistance(32.0F);
@@ -42,7 +43,7 @@ public class AbyssDimensionClient {
         @SubscribeEvent
         public static void onComputeFogColor(ViewportEvent.ComputeFogColor event) {
             Minecraft mc = Minecraft.getInstance();
-            if (mc.level != null && mc.level.dimension().location().toString().equals("create_submarine:abyss")) {
+            if (mc.level != null && mc.level.dimension().location().equals(ABYSS_DIM)) {
                 if (event.getCamera().getFluidInCamera() == net.minecraft.world.level.material.FogType.WATER) {
                     event.setRed(0.0F);
                     event.setGreen(0.0627F);

@@ -110,7 +110,7 @@ public class SubmarineLianaBlockEntity extends BlockEntity implements BlockEntit
         totalForce.add(waveSway, 0, 0);
 
         if (parentId != null) {
-            ServerSubLevelContainer container = SubLevelContainer.getContainer(subLevel.getLevel());
+            ServerSubLevelContainer container = (ServerSubLevelContainer) SubLevelContainer.getContainer(subLevel.getLevel());
             if (container != null) {
                 ServerSubLevel parentSubLevel = (ServerSubLevel) container.getSubLevel(parentId);
                 if (parentSubLevel != null) {
@@ -153,8 +153,6 @@ public class SubmarineLianaBlockEntity extends BlockEntity implements BlockEntit
 
         upA.cross(worldVertical, tempVec).mul(verticalRestorationStiffness);
         totalTorque.add(tempVec);
-
-        orient.transform(totalForce);
 
         forceTotal.reset();
         forceTotal.applyImpulseAtPoint(

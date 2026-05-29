@@ -73,11 +73,16 @@ public final class LianaLODOptimizer {
 
                 Boolean cachedVal = isLianaOrPlantCache.get(id);
                 if (cachedVal == null) {
-                    cachedVal = isLianaOrPlantSubLevel(serverSub);
-                    isLianaOrPlantCache.put(id, cachedVal);
-                    if (cachedVal) {
-                        Object h = SablePhysicsHelper.getHandle(serverSub);
-                        SablePhysicsHelper.setAsleep(h, true);
+                    Boolean val = isLianaOrPlantSubLevel(serverSub);
+                    if (val != null) {
+                        cachedVal = val;
+                        isLianaOrPlantCache.put(id, cachedVal);
+                        if (cachedVal) {
+                            Object h = SablePhysicsHelper.getHandle(serverSub);
+                            SablePhysicsHelper.setAsleep(h, true);
+                        }
+                    } else {
+                        continue;
                     }
                 }
                 if (!cachedVal) continue;
@@ -141,13 +146,13 @@ public final class LianaLODOptimizer {
         awakeSubLevels.retainAll(presentSubLevels);
     }
 
-    private static boolean isLianaOrPlantSubLevel(SubLevel sub) {
-        if (sub.getPlot() == null) return false;
+    private static Boolean isLianaOrPlantSubLevel(SubLevel sub) {
+        if (sub.getPlot() == null) return null;
         BlockPos anchor = sub.getPlot().getCenterBlock();
-        if (anchor == null) return false;
+        if (anchor == null) return null;
         ChunkPos local = sub.getPlot().toLocal(new ChunkPos(anchor));
         LevelChunk chunk = sub.getPlot().getChunk(local);
-        if (chunk == null) return false;
+        if (chunk == null) return null;
         BlockState state = chunk.getBlockState(anchor);
         return state.is(LIANA_LOD_TAG)
                 || state.is(LianaRegistry.LIANA_BLOCK.get())
