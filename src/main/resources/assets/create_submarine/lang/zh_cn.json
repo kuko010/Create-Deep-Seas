@@ -97,7 +97,7 @@
 "create_submarine.configuration.maxDepthMultiplier.tooltip": "运行时对所有方块的有效 maxWaterDepth 的倍率。数值越低，船体越脆弱；数值越高，船体越坚固。",
 
 "create_submarine.configuration.implosionChanceMultiplier": "内爆几率倍率",
-"create_submarine.configuration.implosionChanceMultiplier.tooltip": "运行时对所有方块内爆几率的倍率。数值越低，船体开裂速度越慢；数值越高，船体开裂速度越快。",
+"create_submarine.configuration.implosionChanceMultiplier.tooltip": "运行时对所有方块的内爆几率的倍率。数值越低，船体开裂速度越慢；数值越高，船体开裂速度越快。",
 
 "create_submarine.configuration.ballastForceMultiplier": "压载力倍率",
 "create_submarine.configuration.ballastForceMultiplier.tooltip": "运行时对压载水罐施加垂直推力的倍率。数值越低，下潜和上浮速度越慢；数值越高，响应越灵敏。",
