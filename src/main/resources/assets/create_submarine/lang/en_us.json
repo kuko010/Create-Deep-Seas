@@ -16,6 +16,8 @@
   "create_submarine.gui.goggles.water": "Water",
   "create_submarine.gui.goggles.air": "Air",
   "create_submarine.gui.goggles.connected_tanks": "Connected Tanks",
+  "create_submarine.gui.goggles.steel_cable_network": "Steel Cable Network",
+  "create_submarine.gui.goggles.energy": "Energy",
   "create_submarine.tooltip.holdForInfo": "Hold %s for summary",
   "create_submarine.tooltip.keyShift": "Shift",
   "create_submarine.ponder.ballast_vent.header": "Ballast Vent Usage",
@@ -99,5 +101,9 @@
   "block.create_submarine.poulis": "Pulley",
   "entity.create_submarine.amphistium": "Amphistium",
   "item.create_submarine.amphistium_spawn_egg": "Amphistium Spawn Egg",
-  "itemGroup.create_submarine.abyss_tab": "Create Deep Seas"
+  "entity.create_submarine.cookiecutter_shark": "Cookiecutter Shark",
+  "item.create_submarine.cookiecutter_shark_spawn_egg": "Cookiecutter Shark Spawn Egg",
+  "itemGroup.create_submarine.abyss_tab": "Create Deep Seas",
+  "block.create_submarine.submarine_propeller": "Submarine Propeller",
+  "block.create_submarine.underwater_mine": "Underwater Mine"
 }

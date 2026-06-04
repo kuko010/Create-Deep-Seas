@@ -9,9 +9,13 @@
     "RopeStrandHolderBehaviorMixin",
     "ServerRopeStrandMixin",
     "RapierVoxelColliderBakeryMixin",
+    "RopeWinchBlockEntityMixin",
+    "RopeConnectorBlockEntityMixin",
+    "SmartBlockEntityMixin",
     "compat.SablePhysicsCrashFixMixin"
   ],
   "client": [
+    "SubmarinePropellerParticleMixin",
     "ClientRopeStrandMixin",
     "FluidRenderHelperBuilderMixin",
     "FluidRenderHelperMixin",

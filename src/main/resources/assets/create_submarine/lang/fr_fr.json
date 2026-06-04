@@ -18,6 +18,8 @@
   "fluid.create_submarine.oxygen": "Oxygène",
   "create_submarine.gui.goggles.air": "Air",
   "create_submarine.gui.goggles.connected_tanks": "Ballasts Connectés",
+  "create_submarine.gui.goggles.steel_cable_network": "Réseau de Câbles en Acier",
+  "create_submarine.gui.goggles.energy": "Énergie",
   "create_submarine.tooltip.holdForInfo": "Maintenir %s pour les infos",
   "create_submarine.tooltip.keyShift": "Shift",
   "create_submarine.ponder.ballast_vent.header": "Utilisation de l'Évent de Ballast",
@@ -100,5 +102,9 @@
   "block.create_submarine.poulis": "Poulie",
   "entity.create_submarine.amphistium": "Amphistium",
   "item.create_submarine.amphistium_spawn_egg": "Œuf d'apparition d'Amphistium",
-  "itemGroup.create_submarine.abyss_tab": "Create Deep Seas"
+  "entity.create_submarine.cookiecutter_shark": "Requin emporte-pièce",
+  "item.create_submarine.cookiecutter_shark_spawn_egg": "Œuf d'apparition de requin emporte-pièce",
+  "itemGroup.create_submarine.abyss_tab": "Create Deep Seas",
+  "block.create_submarine.submarine_propeller": "H�lice Sousmarine",
+  "block.create_submarine.underwater_mine": "Mine sous-marine"
 }
