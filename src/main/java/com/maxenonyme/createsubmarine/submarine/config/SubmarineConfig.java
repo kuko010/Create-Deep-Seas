@@ -13,6 +13,7 @@ public class SubmarineConfig {
     public static final ModConfigSpec.DoubleValue WATER_THRUSTER_POWER_MULTIPLIER;
     public static final ModConfigSpec.DoubleValue SUBMARINE_PROPELLER_POWER_MULTIPLIER;
     public static final ModConfigSpec.DoubleValue PULLEY_MAX_SLIDE_SPEED;
+    public static final ModConfigSpec.IntValue STEEL_CABLE_MAX_LENGTH;
     public static final ModConfigSpec.BooleanValue ENABLE_PERMANENT_WATER_CULLING_TEST;
     public static final ModConfigSpec.BooleanValue ENABLE_DEEPER_OCEANS;
     public static final ModConfigSpec.BooleanValue ENABLE_ABYSS_DIMENSION;
@@ -45,7 +46,7 @@ public class SubmarineConfig {
                 .defineInRange("implosionChanceMultiplier", 1.0, 0.0, 10.0);
         builder.pop();
 
-        builder.push("propulsion");
+        builder.push("mechanics");
         BALLAST_FORCE_MULTIPLIER = builder
                 .comment("Multiplier on the vertical force ballast tanks apply.",
                         "Lower = slower dive/ascend, higher = snappier.")
@@ -66,6 +67,10 @@ public class SubmarineConfig {
                 .comment("Maximum sliding speed of a pulley along a steel cable (blocks/s).",
                         "Above this speed the pulley starts overheating.")
                 .defineInRange("pulleyMaxSlideSpeed", 24.0, 1.0, 200.0);
+        STEEL_CABLE_MAX_LENGTH = builder
+                .comment("Maximum length of a steel cable in blocks (distance between its two attachment points).",
+                        "Very long cables can cause server lag; lower this on servers.")
+                .defineInRange("steelCableMaxLength", 1000, 1, 1000000);
         builder.pop();
 
         builder.push("experimental");

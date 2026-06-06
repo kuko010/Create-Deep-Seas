@@ -190,7 +190,7 @@ public class CableElectrificationSystem {
                         adjStorage.receiveEnergy(actualExtracted, false);
                         if (actualExtracted > 0) {
                             be.setChanged();
-                            boolean sync = tickCounter % 10 == 0;
+                            boolean sync = (tickCounter + pos.hashCode()) % 10 == 0;
                             if (sync && level instanceof ServerLevel sl) {
                                 sl.sendBlockUpdated(pos, be.getBlockState(), be.getBlockState(), 2);
                             }
@@ -213,7 +213,7 @@ public class CableElectrificationSystem {
                         myStorage.receiveEnergy(actualExtracted, false);
                         if (actualExtracted > 0) {
                             be.setChanged();
-                            boolean sync = tickCounter % 10 == 0;
+                            boolean sync = (tickCounter + pos.hashCode()) % 10 == 0;
                             if (sync && level instanceof ServerLevel sl) {
                                 sl.sendBlockUpdated(pos, be.getBlockState(), be.getBlockState(), 2);
                             }

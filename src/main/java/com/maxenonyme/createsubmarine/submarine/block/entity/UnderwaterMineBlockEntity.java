@@ -39,6 +39,8 @@ public class UnderwaterMineBlockEntity extends BlockEntity {
     private boolean isExploded = false;
     public UUID ownerUUID;
     private UUID trackedSubId;
+    private boolean exceedsLimitCached = false;
+    private long lastLimitCheckTick = -1;
 
     public UnderwaterMineBlockEntity(BlockPos pos, BlockState state) {
         super(CreateSubmarine.UNDERWATER_MINE_BE.get(), pos, state);
@@ -188,7 +190,11 @@ public class UnderwaterMineBlockEntity extends BlockEntity {
         if (sub == null)
             return;
 
-        if (exceedsFloatBlockLimit(level, sub)) {
+        if (level.getGameTime() - be.lastLimitCheckTick >= 20) {
+            be.exceedsLimitCached = exceedsFloatBlockLimit(level, sub);
+            be.lastLimitCheckTick = level.getGameTime();
+        }
+        if (be.exceedsLimitCached) {
             return;
         }
 

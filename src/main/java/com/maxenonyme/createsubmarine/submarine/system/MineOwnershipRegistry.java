@@ -21,6 +21,9 @@ public final class MineOwnershipRegistry {
     }
 
     public static void onSplit(UUID newSubLevelId, UUID parentSubLevelId) {
+        if (newSubLevelId == null || parentSubLevelId == null) {
+            return;
+        }
         UUID owner = OWNERS.get(parentSubLevelId);
         if (owner != null) {
             OWNERS.put(newSubLevelId, owner);

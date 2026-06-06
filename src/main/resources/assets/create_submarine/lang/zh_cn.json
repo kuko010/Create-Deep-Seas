@@ -52,9 +52,9 @@
   "create_submarine.configuration.implosionChanceMultiplier.tooltip": "Multiplier on every block's implosion chance at runtime. Lower = slower cracking, higher = faster cracking.",
   "create_submarine.configuration.maxDepthMultiplier": "Max depth multiplier",
   "create_submarine.configuration.maxDepthMultiplier.tooltip": "Multiplier on every block's effective maxWaterDepth at runtime. Lower = more fragile hulls, higher = tougher hulls.",
-  "create_submarine.configuration.propulsion": "Propulsion",
-  "create_submarine.configuration.propulsion.button": "Propulsion",
-  "create_submarine.configuration.propulsion.tooltip": "Thruster and ballast tuning.",
+  "create_submarine.configuration.mechanics": "Mechanics",
+  "create_submarine.configuration.mechanics.button": "Mechanics",
+  "create_submarine.configuration.mechanics.tooltip": "Thruster, ballast, and cable tuning.",
   "create_submarine.configuration.pulleyMaxSlideSpeed": "Pulley max slide speed",
   "create_submarine.configuration.pulleyMaxSlideSpeed.tooltip": "Maximum sliding speed of a pulley along a steel cable (blocks/s). Above this speed the pulley starts overheating.",
   "create_submarine.configuration.section.create.submarine.common.toml": "Common",
@@ -221,9 +221,9 @@
 "create_submarine.configuration.hullStrength.button": "船体强度",
 "create_submarine.configuration.hullStrength.tooltip": "船体对于水压的抗性。",
 
-"create_submarine.configuration.propulsion": "推进力",
-"create_submarine.configuration.propulsion.button": "推进力",
-"create_submarine.configuration.propulsion.tooltip": "推进器以及压载的调节。",
+"create_submarine.configuration.mechanics": "机械与物理",
+"create_submarine.configuration.mechanics.button": "机械与物理",
+"create_submarine.configuration.mechanics.tooltip": "推进器、压载以及缆绳的调节。",
 
 "create_submarine.configuration.disableImplosion": "关闭内爆伤害",
 "create_submarine.configuration.disableImplosion.tooltip": "关闭所有由水压导致的船体内爆伤害。",
@@ -248,6 +248,8 @@
 
 "create_submarine.configuration.pulleyMaxSlideSpeed": "滑轮最大滑动速度",
 "create_submarine.configuration.pulleyMaxSlideSpeed.tooltip": "钢制缆绳上滑轮的最大滑动速度（格/秒）。超过此速度后，滑轮将开始过热。",
+"create_submarine.configuration.steelCableMaxLength": "钢缆最大长度",
+"create_submarine.configuration.steelCableMaxLength.tooltip": "钢缆的最大长度（两个连接点之间的距离，以方块计）。过长的缆绳可能导致服务器卡顿。默认值 1000。",
 
 "create_submarine.configuration.experimental": "实验",
 "create_submarine.configuration.experimental.button": "实验",
