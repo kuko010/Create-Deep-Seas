@@ -16,9 +16,9 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 public final class UpdateChecker {
-    private static boolean updateAvailable = false;
-    private static String latestVersion = null;
-    private static String latestChangelog = null;
+    private static volatile boolean updateAvailable = false;
+    private static volatile String latestVersion = null;
+    private static volatile String latestChangelog = null;
 
     public static void check() {
         if (!FMLEnvironment.dist.isClient()) {

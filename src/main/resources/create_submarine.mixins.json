@@ -13,7 +13,8 @@
     "RopeConnectorBlockEntityMixin",
     "SmartBlockEntityMixin",
     "EntityWaterPhysicsMixin",
-    "compat.SablePhysicsCrashFixMixin"
+    "compat.SablePhysicsCrashFixMixin",
+    "compat.sable.ServerSubLevelMixin"
   ],
   "client": [
     "ClientRopeStrandMixin",

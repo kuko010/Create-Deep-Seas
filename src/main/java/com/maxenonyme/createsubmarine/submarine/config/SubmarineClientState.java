@@ -21,14 +21,16 @@ public class SubmarineClientState {
         if (Files.exists(PATH)) {
             try {
                 JsonObject json = GSON.fromJson(Files.readString(PATH), JsonObject.class);
-                if (json.has("welcomeScreenSeen")) {
-                    welcomeScreenSeen = json.get("welcomeScreenSeen").getAsBoolean();
-                }
-                if (json.has("lithostitchedScreenSeen")) {
-                    lithostitchedScreenSeen = json.get("lithostitchedScreenSeen").getAsBoolean();
-                }
-                if (json.has("ignoredUpdateVersion")) {
-                    ignoredUpdateVersion = json.get("ignoredUpdateVersion").getAsString();
+                if (json != null) {
+                    if (json.has("welcomeScreenSeen")) {
+                        welcomeScreenSeen = json.get("welcomeScreenSeen").getAsBoolean();
+                    }
+                    if (json.has("lithostitchedScreenSeen")) {
+                        lithostitchedScreenSeen = json.get("lithostitchedScreenSeen").getAsBoolean();
+                    }
+                    if (json.has("ignoredUpdateVersion")) {
+                        ignoredUpdateVersion = json.get("ignoredUpdateVersion").getAsString();
+                    }
                 }
             } catch (Exception e) {
                 CreateSubmarine.LOGGER.error("[CDS] Failed to load create_submarine_client_state.json", e);

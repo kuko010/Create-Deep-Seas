@@ -16,11 +16,9 @@ import net.minecraft.resources.ResourceLocation;
 public class CookiecutterShark<T extends CookiecutterSharkEntity> extends HierarchicalModel<T> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(CreateSubmarine.MOD_ID, "cookiecutter_shark"), "main");
     private final ModelPart root;
-    private final ModelPart bone2;
 
     public CookiecutterShark(ModelPart root) {
         this.root = root;
-        this.bone2 = root.getChild("bone2");
     }
 
     public static LayerDefinition createBodyLayer() {

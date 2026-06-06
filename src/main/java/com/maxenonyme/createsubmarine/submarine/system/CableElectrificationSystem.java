@@ -190,12 +190,13 @@ public class CableElectrificationSystem {
                         adjStorage.receiveEnergy(actualExtracted, false);
                         if (actualExtracted > 0) {
                             be.setChanged();
-                            if (level instanceof ServerLevel sl) {
+                            boolean sync = tickCounter % 10 == 0;
+                            if (sync && level instanceof ServerLevel sl) {
                                 sl.sendBlockUpdated(pos, be.getBlockState(), be.getBlockState(), 2);
                             }
                             if (adjBE instanceof RopeWinchBlockEntity || adjBE instanceof RopeConnectorBlockEntity) {
                                 adjBE.setChanged();
-                                if (level instanceof ServerLevel sl) {
+                                if (sync && level instanceof ServerLevel sl) {
                                     sl.sendBlockUpdated(adjPos, adjBE.getBlockState(), adjBE.getBlockState(), 2);
                                 }
                             }
@@ -212,12 +213,13 @@ public class CableElectrificationSystem {
                         myStorage.receiveEnergy(actualExtracted, false);
                         if (actualExtracted > 0) {
                             be.setChanged();
-                            if (level instanceof ServerLevel sl) {
+                            boolean sync = tickCounter % 10 == 0;
+                            if (sync && level instanceof ServerLevel sl) {
                                 sl.sendBlockUpdated(pos, be.getBlockState(), be.getBlockState(), 2);
                             }
                             if (adjBE instanceof RopeWinchBlockEntity || adjBE instanceof RopeConnectorBlockEntity) {
                                 adjBE.setChanged();
-                                if (level instanceof ServerLevel sl) {
+                                if (sync && level instanceof ServerLevel sl) {
                                     sl.sendBlockUpdated(adjPos, adjBE.getBlockState(), adjBE.getBlockState(), 2);
                                 }
                             }

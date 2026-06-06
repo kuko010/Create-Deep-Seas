@@ -1,6 +1,7 @@
 package com.maxenonyme.createsubmarine.submarine.block.entity;
 
 import com.maxenonyme.createsubmarine.CreateSubmarine;
+import com.maxenonyme.createsubmarine.submarine.system.MineOwnershipRegistry;
 import com.maxenonyme.createsubmarine.submarine.util.SablePhysicsHelper;
 import com.maxenonyme.createsubmarine.submarine.util.SubLevelRegistry;
 import dev.ryanhcode.sable.companion.SableCompanion;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.server.level.ServerLevel;
@@ -33,10 +35,10 @@ import dev.ryanhcode.sable.companion.math.BoundingBox3ic;
 public class UnderwaterMineBlockEntity extends BlockEntity {
     private static final int MAX_WATER_SCAN = 200;
 
-    private static final Map<UUID, Integer> MINE_COUNTS = new ConcurrentHashMap<>();
-    private static final Map<UUID, Long> LAST_COUNT_TIMES = new ConcurrentHashMap<>();
+    private static final Map<UUID, Set<BlockPos>> ACTIVE_MINES = new ConcurrentHashMap<>();
     private boolean isExploded = false;
     public UUID ownerUUID;
+    private UUID trackedSubId;
 
     public UnderwaterMineBlockEntity(BlockPos pos, BlockState state) {
         super(CreateSubmarine.UNDERWATER_MINE_BE.get(), pos, state);
@@ -59,36 +61,52 @@ public class UnderwaterMineBlockEntity extends BlockEntity {
     }
 
     public static void clearAll() {
-        MINE_COUNTS.clear();
-        LAST_COUNT_TIMES.clear();
+        ACTIVE_MINES.clear();
+        MineOwnershipRegistry.clearAll();
     }
 
-    private static int getMineCount(Level level, SubLevelAccess sub) {
-        UUID id = sub.getUniqueId();
-        long time = level.getGameTime();
-        Long lastTime = LAST_COUNT_TIMES.get(id);
-        if (lastTime != null && time - lastTime < 20) {
-            return MINE_COUNTS.getOrDefault(id, 1);
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (trackedSubId != null) {
+            Set<BlockPos> mines = ACTIVE_MINES.get(trackedSubId);
+            if (mines != null) {
+                mines.remove(worldPosition);
+                if (mines.isEmpty()) {
+                    ACTIVE_MINES.remove(trackedSubId);
+                }
+            }
+            trackedSubId = null;
         }
-        SubLevelRegistry.PlotBounds bounds = SubLevelRegistry.getBounds(id);
+    }
+
+    private static int getMineCount(UUID subId) {
+        Set<BlockPos> mines = ACTIVE_MINES.get(subId);
+        int count = (mines != null) ? mines.size() : 0;
+        return count == 0 ? 1 : count;
+    }
+
+    private static boolean exceedsFloatBlockLimit(Level level, SubLevelAccess sub) {
+        if (!(sub instanceof SubLevel sl) || sl.getPlot() == null) {
+            return false;
+        }
+        BoundingBox3ic bounds = sl.getPlot().getBoundingBox();
+        if (bounds == null) {
+            return false;
+        }
         int count = 0;
-        if (bounds != null && !bounds.isEmpty()) {
-            BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
-            for (int x = bounds.minX(); x <= bounds.maxX(); x++) {
-                for (int y = bounds.minY(); y <= bounds.maxY(); y++) {
-                    for (int z = bounds.minZ(); z <= bounds.maxZ(); z++) {
-                        p.set(x, y, z);
-                        if (level.getBlockState(p).is(CreateSubmarine.UNDERWATER_MINE.get())) {
-                            count++;
-                        }
+        BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
+        for (int x = bounds.minX(); x <= bounds.maxX(); x++) {
+            for (int y = bounds.minY(); y <= bounds.maxY(); y++) {
+                for (int z = bounds.minZ(); z <= bounds.maxZ(); z++) {
+                    p.set(x, y, z);
+                    if (!level.getBlockState(p).isAir() && ++count > 5) {
+                        return true;
                     }
                 }
             }
         }
-        if (count == 0) count = 1;
-        MINE_COUNTS.put(id, count);
-        LAST_COUNT_TIMES.put(id, time);
-        return count;
+        return false;
     }
 
     public static void serverTick(Level level, BlockPos pos, UnderwaterMineBlockEntity be) {
@@ -97,6 +115,11 @@ public class UnderwaterMineBlockEntity extends BlockEntity {
         SubLevelAccess sub = SableCompanion.INSTANCE.getContaining(level, pos);
         if (sub == null)
             return;
+
+        UUID subId = sub.getUniqueId();
+        ACTIVE_MINES.computeIfAbsent(subId, k -> ConcurrentHashMap.newKeySet()).add(pos);
+        be.trackedSubId = subId;
+        MineOwnershipRegistry.tag(subId, be.ownerUUID);
 
         Vector3d worldPos = new Vector3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
         sub.logicalPose().transformPosition(worldPos);
@@ -136,6 +159,9 @@ public class UnderwaterMineBlockEntity extends BlockEntity {
                     if (sub != null && otherSubId.equals(sub.getUniqueId())) {
                         continue;
                     }
+                    if (be.ownerUUID != null && be.ownerUUID.equals(MineOwnershipRegistry.getOwner(otherSubId))) {
+                        continue;
+                    }
                     Vector3d localInOther = new Vector3d(worldPos.x, worldPos.y, worldPos.z);
                     otherSub.logicalPose().transformPositionInverse(localInOther);
 
@@ -161,6 +187,10 @@ public class UnderwaterMineBlockEntity extends BlockEntity {
 
         if (sub == null)
             return;
+
+        if (exceedsFloatBlockLimit(level, sub)) {
+            return;
+        }
 
         Object handle = SablePhysicsHelper.getHandle(sub);
         Vector3dc currentVel = SablePhysicsHelper.getVelocity(handle);
@@ -198,7 +228,7 @@ public class UnderwaterMineBlockEntity extends BlockEntity {
         double mass = SablePhysicsHelper.readMass(sub);
 
         double forceMult = com.maxenonyme.createsubmarine.submarine.config.SubmarineConfig.BALLAST_FORCE_MULTIPLIER.get();
-        int count = getMineCount(level, sub);
+        int count = getMineCount(subId);
         double forceToApply = ((errorY * mass * 0.8 * forceMult) * submergedRatio) / count;
 
         double ballastMaxForce = (16000.0 * mass * forceMult) / count;
@@ -370,34 +400,29 @@ public class UnderwaterMineBlockEntity extends BlockEntity {
         }
 
         if (spawnEntity) {
-            FallingBlockEntity fallingBlock = FallingBlockEntity.fall(
-                    parentLevel,
-                    BlockPos.containing(worldBlockPos.x, worldBlockPos.y, worldBlockPos.z),
-                    state);
+            FallingBlockEntity fallingBlock = new FallingBlockEntity(
+                    parentLevel, worldBlockPos.x, worldBlockPos.y, worldBlockPos.z, state);
+            fallingBlock.time = 1;
+            fallingBlock.dropItem = false;
 
-            if (fallingBlock != null) {
-                fallingBlock.moveTo(worldBlockPos.x, worldBlockPos.y, worldBlockPos.z, 0, 0);
-                fallingBlock.time = 1;
-                fallingBlock.dropItem = false;
-
-                Vector3d direction = new Vector3d(worldBlockPos).sub(explosionSource);
-                double dist = direction.length();
-                if (dist < 0.1) {
-                    direction.set(0, 1, 0);
-                    dist = 1.0;
-                } else {
-                    direction.normalize();
-                }
-
-                double force = 1.5 * (1.0 - (dist / 8.0));
-                double vx = direction.x * force + (parentLevel.random.nextFloat() - 0.5f) * 0.3;
-                double vy = Math.abs(direction.y * force) + 0.6 + parentLevel.random.nextFloat() * 0.4;
-                double vz = direction.z * force + (parentLevel.random.nextFloat() - 0.5f) * 0.3;
-
-                fallingBlock.setDeltaMovement(new net.minecraft.world.phys.Vec3(vx, vy, vz));
-                fallingBlock.hurtMarked = true;
-                return true;
+            Vector3d direction = new Vector3d(worldBlockPos).sub(explosionSource);
+            double dist = direction.length();
+            if (dist < 0.1) {
+                direction.set(0, 1, 0);
+                dist = 1.0;
+            } else {
+                direction.normalize();
             }
+
+            double force = 1.5 * (1.0 - (dist / 8.0));
+            double vx = direction.x * force + (parentLevel.random.nextFloat() - 0.5f) * 0.3;
+            double vy = Math.abs(direction.y * force) + 0.6 + parentLevel.random.nextFloat() * 0.4;
+            double vz = direction.z * force + (parentLevel.random.nextFloat() - 0.5f) * 0.3;
+
+            fallingBlock.setDeltaMovement(new net.minecraft.world.phys.Vec3(vx, vy, vz));
+            fallingBlock.hurtMarked = true;
+            parentLevel.addFreshEntity(fallingBlock);
+            return true;
         }
         return false;
     }
